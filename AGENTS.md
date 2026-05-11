@@ -10,3 +10,13 @@
 - LangGraph is allowed only for workflow orchestration.
 - Do not add paid API calls in tests.
 - Do not commit secrets or local files.
+
+
+## Windows environment
+
+Always run checks through:
+.\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\python.exe -m ruff check .
+.\.venv\Scripts\python.exe -m ruff format --check .
+
+Do not rely on system python.
