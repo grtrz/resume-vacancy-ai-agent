@@ -1,4 +1,19 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
+class MatchReportRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    resume_text: str = Field(min_length=1)
+    vacancy_text: str = Field(min_length=1)
+
+    @field_validator("resume_text", "vacancy_text")
+    @classmethod
+    def text_must_not_be_blank(cls, value: str) -> str:
+        if not value.strip():
+            msg = "Text must not be blank."
+            raise ValueError(msg)
+        return value
 
 
 class GapItem(BaseModel):
