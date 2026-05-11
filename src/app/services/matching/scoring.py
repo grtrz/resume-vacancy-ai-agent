@@ -2,11 +2,13 @@ import re
 from collections.abc import Iterable
 
 from app.services.extraction.normalizer import fold_for_matching, normalize_skill
+from app.services.rag.embeddings import EmbeddingService
 
-SKILL_WEIGHT = 0.45
-EXPERIENCE_WEIGHT = 0.25
-KEYWORD_WEIGHT = 0.20
+SKILL_WEIGHT = 0.35
+EXPERIENCE_WEIGHT = 0.20
+KEYWORD_WEIGHT = 0.15
 COVERAGE_WEIGHT = 0.10
+SEMANTIC_WEIGHT = 0.20
 
 _STOPWORDS = {
     "a",
@@ -108,17 +110,28 @@ def coverage_bonus_score(
     return clamp_score(len(resume_set & vacancy_skills) / len(vacancy_skills) * 100)
 
 
+def semantic_similarity_score(
+    resume_text: str,
+    vacancy_text: str,
+    embedding_service: EmbeddingService | None = None,
+) -> float:
+    service = embedding_service or EmbeddingService()
+    return service.similarity(resume_text, vacancy_text)
+
+
 def weighted_final_score(
     skills_overlap: float,
     experience_match: float,
     keyword_relevance: float,
     coverage_bonus: float,
+    semantic_similarity: float,
 ) -> float:
     return clamp_score(
         skills_overlap * SKILL_WEIGHT
         + experience_match * EXPERIENCE_WEIGHT
         + keyword_relevance * KEYWORD_WEIGHT
         + coverage_bonus * COVERAGE_WEIGHT
+        + semantic_similarity * SEMANTIC_WEIGHT
     )
 
 

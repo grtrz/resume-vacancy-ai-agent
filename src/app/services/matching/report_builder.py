@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from typing import Protocol
 
 from app.schemas.extraction import ExperienceRange, ExtractedProfile, VacancyRequirements
 from app.schemas.report import GapItem, MatchScoreBreakdown, ResumeVacancyReport
@@ -13,9 +14,17 @@ from app.services.matching.scoring import (
     skill_overlap_score,
     weighted_final_score,
 )
+from app.services.matching.semantic_matcher import SemanticMatcher
+
+
+class SemanticComparator(Protocol):
+    def compare(self, left: str, right: str) -> float: ...
 
 
 class MatchingReportBuilder:
+    def __init__(self, semantic_matcher: SemanticComparator | None = None) -> None:
+        self._semantic_matcher = semantic_matcher or SemanticMatcher()
+
     def build(
         self,
         resume: ResumeProfile | ExtractedProfile,
@@ -41,11 +50,16 @@ class MatchingReportBuilder:
             _vacancy_keyword_terms(vacancy_requirements),
         )
         coverage_bonus = coverage_bonus_score(resume_skills, required_skills, preferred_skills)
+        semantic_similarity = self._semantic_matcher.compare(
+            _resume_semantic_text(resume, resume_profile),
+            _vacancy_semantic_text(vacancy, vacancy_requirements),
+        )
         match_score = weighted_final_score(
             skills_overlap,
             experience_match,
             keyword_relevance,
             coverage_bonus,
+            semantic_similarity,
         )
 
         missing = missing_skills(resume_skills, required_skills)
@@ -59,6 +73,7 @@ class MatchingReportBuilder:
                 experience_match=experience_match,
                 keyword_relevance=keyword_relevance,
                 coverage_bonus=coverage_bonus,
+                semantic_similarity=semantic_similarity,
             ),
             matched_skills=matched_skills(resume_skills, vacancy_skills),
             missing_skills=missing,
@@ -109,3 +124,21 @@ def _vacancy_keyword_terms(requirements: VacancyRequirements) -> Iterable[str]:
         *requirements.responsibilities,
         *requirements.sections.values(),
     )
+
+
+def _resume_semantic_text(
+    resume: ResumeProfile | ExtractedProfile,
+    profile: ExtractedProfile,
+) -> str:
+    if isinstance(resume, ResumeProfile) and resume.raw_text.strip():
+        return resume.raw_text
+    return "\n".join(_resume_keyword_terms(profile))
+
+
+def _vacancy_semantic_text(
+    vacancy: VacancyProfile | VacancyRequirements,
+    requirements: VacancyRequirements,
+) -> str:
+    if isinstance(vacancy, VacancyProfile) and vacancy.raw_text.strip():
+        return vacancy.raw_text
+    return "\n".join(_vacancy_keyword_terms(requirements))

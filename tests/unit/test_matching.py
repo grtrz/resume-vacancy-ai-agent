@@ -5,6 +5,18 @@ from app.services.matching.hybrid_ranker import HybridRanker
 from app.services.matching.report_builder import MatchingReportBuilder
 
 
+class StaticSemanticMatcher:
+    def __init__(self, score: float = 100.0) -> None:
+        self._score = score
+
+    def compare(self, left: str, right: str) -> float:
+        return self._score if left and right else 0.0
+
+
+def _builder(semantic_score: float = 100.0) -> MatchingReportBuilder:
+    return MatchingReportBuilder(semantic_matcher=StaticSemanticMatcher(semantic_score))
+
+
 def test_matching_report_for_strong_match() -> None:
     resume = ExtractedProfile(
         hard_skills=["Python", "FastAPI", "SQL", "Docker", "Pytest"],
@@ -19,12 +31,13 @@ def test_matching_report_for_strong_match() -> None:
         responsibilities=["Build backend REST APIs with PostgreSQL"],
     )
 
-    report = MatchingReportBuilder().build(resume, vacancy)
+    report = _builder().build(resume, vacancy)
 
     assert report.match_score >= 90.0
     assert report.score_breakdown.skills_overlap == 100.0
     assert report.score_breakdown.experience_match == 100.0
     assert report.score_breakdown.coverage_bonus == 100.0
+    assert report.score_breakdown.semantic_similarity == 100.0
     assert report.matched_skills == ["docker", "fastapi", "pytest", "python", "sql"]
     assert report.missing_skills == []
 
@@ -41,7 +54,7 @@ def test_matching_report_for_weak_match() -> None:
         responsibilities=["Build backend APIs and database services"],
     )
 
-    report = MatchingReportBuilder().build(resume, vacancy)
+    report = _builder(semantic_score=0.0).build(resume, vacancy)
 
     assert report.match_score < 25.0
     assert report.score_breakdown.skills_overlap == 0.0
@@ -56,7 +69,7 @@ def test_matching_report_lists_missing_required_skills() -> None:
         experience=ExperienceRange(minimum_years=3),
     )
 
-    report = MatchingReportBuilder().build(resume, vacancy)
+    report = _builder().build(resume, vacancy)
 
     assert report.score_breakdown.skills_overlap == 33.33
     assert report.matched_skills == ["python"]
@@ -77,7 +90,7 @@ def test_experience_mismatch_lowers_score() -> None:
         hard_skills=["Python", "FastAPI", "SQL"],
         experience_years=5,
     )
-    builder = MatchingReportBuilder()
+    builder = _builder()
 
     junior_report = builder.build(junior_resume, vacancy)
     senior_report = builder.build(senior_resume, vacancy)
@@ -110,6 +123,8 @@ def test_hybrid_ranker_builds_and_sorts_reports() -> None:
         ),
     )
 
-    reports = HybridRanker().rank_vacancies(resume, [weak_vacancy, strong_vacancy])
+    ranker = HybridRanker(report_builder=_builder())
+
+    reports = ranker.rank_vacancies(resume, [weak_vacancy, strong_vacancy])
 
     assert [report.vacancy_id for report in reports] == ["vacancy-strong", "vacancy-weak"]

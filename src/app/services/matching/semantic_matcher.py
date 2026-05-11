@@ -1,5 +1,9 @@
+from app.services.rag.embeddings import EmbeddingService
+
+
 class SemanticMatcher:
+    def __init__(self, embedding_service: EmbeddingService | None = None) -> None:
+        self._embedding_service = embedding_service or EmbeddingService()
+
     def compare(self, left: str, right: str) -> float:
-        if not left or not right:
-            return 0.0
-        return 0.0
+        return self._embedding_service.similarity(left, right)

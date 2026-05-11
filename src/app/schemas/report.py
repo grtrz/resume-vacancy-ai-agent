@@ -28,6 +28,7 @@ class MatchScoreBreakdown(BaseModel):
     experience_match: float = Field(default=0.0, ge=0, le=100)
     keyword_relevance: float = Field(default=0.0, ge=0, le=100)
     coverage_bonus: float = Field(default=0.0, ge=0, le=100)
+    semantic_similarity: float = Field(default=0.0, ge=0, le=100)
 
 
 class ResumeVacancyReport(BaseModel):
