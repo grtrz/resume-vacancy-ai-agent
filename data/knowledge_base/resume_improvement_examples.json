@@ -1,0 +1,27 @@
+[
+  {
+    "skill": "python",
+    "category": "backend",
+    "example_bullet": "Built Python services that automated data validation and reduced manual review time by 40%."
+  },
+  {
+    "skill": "fastapi",
+    "category": "api",
+    "example_bullet": "Developed FastAPI endpoints with typed Pydantic contracts, validation, and pytest coverage."
+  },
+  {
+    "skill": "postgresql",
+    "category": "database",
+    "example_bullet": "Optimized PostgreSQL queries and indexes for reporting workflows with measurable latency reduction."
+  },
+  {
+    "skill": "docker",
+    "category": "devops",
+    "example_bullet": "Containerized application services with Docker and documented repeatable local development workflows."
+  },
+  {
+    "skill": "react",
+    "category": "frontend",
+    "example_bullet": "Implemented React components for data-heavy workflows with reusable state and form validation patterns."
+  }
+]

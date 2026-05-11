@@ -31,6 +31,20 @@ class MatchScoreBreakdown(BaseModel):
     semantic_similarity: float = Field(default=0.0, ge=0, le=100)
 
 
+class RetrievedExample(BaseModel):
+    skill: str
+    category: str
+    example_bullet: str
+    relevance_score: float = Field(ge=0, le=100)
+
+
+class RecommendationSuggestion(BaseModel):
+    skill: str
+    category: str
+    suggestion: str
+    example_bullet: str
+
+
 class ResumeVacancyReport(BaseModel):
     resume_id: str | None = None
     vacancy_id: str | None = None
@@ -40,3 +54,5 @@ class ResumeVacancyReport(BaseModel):
     missing_skills: list[str] = Field(default_factory=list)
     gaps: list[GapItem] = Field(default_factory=list)
     improved_bullets: list[str] = Field(default_factory=list)
+    recommendations: list[RecommendationSuggestion] = Field(default_factory=list)
+    retrieved_examples: list[RetrievedExample] = Field(default_factory=list)

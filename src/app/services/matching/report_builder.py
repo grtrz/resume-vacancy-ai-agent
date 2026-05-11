@@ -2,9 +2,16 @@ from collections.abc import Iterable
 from typing import Protocol
 
 from app.schemas.extraction import ExperienceRange, ExtractedProfile, VacancyRequirements
-from app.schemas.report import GapItem, MatchScoreBreakdown, ResumeVacancyReport
+from app.schemas.report import (
+    GapItem,
+    MatchScoreBreakdown,
+    RecommendationSuggestion,
+    ResumeVacancyReport,
+    RetrievedExample,
+)
 from app.schemas.resume import ResumeProfile
 from app.schemas.vacancy import VacancyProfile
+from app.services.generation.recommendation_engine import RecommendationEngine
 from app.services.matching.scoring import (
     coverage_bonus_score,
     experience_match_score,
@@ -21,9 +28,24 @@ class SemanticComparator(Protocol):
     def compare(self, left: str, right: str) -> float: ...
 
 
+class RecommendationGenerator(Protocol):
+    def recommend(
+        self,
+        resume_text: str,
+        vacancy_text: str,
+        missing_skills: list[str],
+        limit: int = 5,
+    ) -> tuple[list[RecommendationSuggestion], list[RetrievedExample]]: ...
+
+
 class MatchingReportBuilder:
-    def __init__(self, semantic_matcher: SemanticComparator | None = None) -> None:
+    def __init__(
+        self,
+        semantic_matcher: SemanticComparator | None = None,
+        recommendation_engine: RecommendationGenerator | None = None,
+    ) -> None:
         self._semantic_matcher = semantic_matcher or SemanticMatcher()
+        self._recommendation_engine = recommendation_engine or RecommendationEngine()
 
     def build(
         self,
@@ -50,9 +72,11 @@ class MatchingReportBuilder:
             _vacancy_keyword_terms(vacancy_requirements),
         )
         coverage_bonus = coverage_bonus_score(resume_skills, required_skills, preferred_skills)
+        resume_semantic_text = _resume_semantic_text(resume, resume_profile)
+        vacancy_semantic_text = _vacancy_semantic_text(vacancy, vacancy_requirements)
         semantic_similarity = self._semantic_matcher.compare(
-            _resume_semantic_text(resume, resume_profile),
-            _vacancy_semantic_text(vacancy, vacancy_requirements),
+            resume_semantic_text,
+            vacancy_semantic_text,
         )
         match_score = weighted_final_score(
             skills_overlap,
@@ -63,6 +87,11 @@ class MatchingReportBuilder:
         )
 
         missing = missing_skills(resume_skills, required_skills)
+        recommendations, retrieved_examples = self._recommendation_engine.recommend(
+            resume_text=resume_semantic_text,
+            vacancy_text=vacancy_semantic_text,
+            missing_skills=missing,
+        )
 
         return ResumeVacancyReport(
             resume_id=resume.id if isinstance(resume, ResumeProfile) else None,
@@ -77,7 +106,9 @@ class MatchingReportBuilder:
             ),
             matched_skills=matched_skills(resume_skills, vacancy_skills),
             missing_skills=missing,
-            gaps=[GapItem(category="skill", requirement=skill) for skill in missing],
+            gaps=_gap_items(missing, recommendations),
+            recommendations=recommendations,
+            retrieved_examples=retrieved_examples,
         )
 
 
@@ -142,3 +173,20 @@ def _vacancy_semantic_text(
     if isinstance(vacancy, VacancyProfile) and vacancy.raw_text.strip():
         return vacancy.raw_text
     return "\n".join(_vacancy_keyword_terms(requirements))
+
+
+def _gap_items(
+    missing: list[str],
+    recommendations: list[RecommendationSuggestion],
+) -> list[GapItem]:
+    recommendation_by_skill = {
+        recommendation.skill: recommendation.suggestion for recommendation in recommendations
+    }
+    return [
+        GapItem(
+            category="skill",
+            requirement=skill,
+            recommendation=recommendation_by_skill.get(skill),
+        )
+        for skill in missing
+    ]

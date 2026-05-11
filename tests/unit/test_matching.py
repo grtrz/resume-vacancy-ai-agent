@@ -1,4 +1,5 @@
 from app.schemas.extraction import ExperienceRange, ExtractedProfile, VacancyRequirements
+from app.schemas.report import RecommendationSuggestion, RetrievedExample
 from app.schemas.resume import ResumeProfile
 from app.schemas.vacancy import VacancyProfile
 from app.services.matching.hybrid_ranker import HybridRanker
@@ -13,8 +14,43 @@ class StaticSemanticMatcher:
         return self._score if left and right else 0.0
 
 
+class StaticRecommendationEngine:
+    def recommend(
+        self,
+        resume_text: str,
+        vacancy_text: str,
+        missing_skills: list[str],
+        limit: int = 5,
+    ) -> tuple[list[RecommendationSuggestion], list[RetrievedExample]]:
+        _ = resume_text
+        _ = vacancy_text
+        _ = limit
+        retrieved_examples = [
+            RetrievedExample(
+                skill=skill,
+                category="skill",
+                example_bullet=f"Example bullet for {skill}.",
+                relevance_score=100.0,
+            )
+            for skill in missing_skills
+        ]
+        recommendations = [
+            RecommendationSuggestion(
+                skill=skill,
+                category="skill",
+                suggestion=f"Address missing skill '{skill}' only if it reflects real experience.",
+                example_bullet=f"Example bullet for {skill}.",
+            )
+            for skill in missing_skills
+        ]
+        return recommendations, retrieved_examples
+
+
 def _builder(semantic_score: float = 100.0) -> MatchingReportBuilder:
-    return MatchingReportBuilder(semantic_matcher=StaticSemanticMatcher(semantic_score))
+    return MatchingReportBuilder(
+        semantic_matcher=StaticSemanticMatcher(semantic_score),
+        recommendation_engine=StaticRecommendationEngine(),
+    )
 
 
 def test_matching_report_for_strong_match() -> None:
@@ -60,6 +96,16 @@ def test_matching_report_for_weak_match() -> None:
     assert report.score_breakdown.skills_overlap == 0.0
     assert report.matched_skills == []
     assert report.missing_skills == ["fastapi", "python", "sql"]
+    assert [recommendation.skill for recommendation in report.recommendations] == [
+        "fastapi",
+        "python",
+        "sql",
+    ]
+    assert [example.skill for example in report.retrieved_examples] == [
+        "fastapi",
+        "python",
+        "sql",
+    ]
 
 
 def test_matching_report_lists_missing_required_skills() -> None:
