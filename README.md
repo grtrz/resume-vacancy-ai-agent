@@ -32,16 +32,54 @@ copy .env.example .env
 uvicorn app.main:app --reload
 ```
 
-The health endpoint is available at:
+The root, docs, and health endpoints are available at:
 
 ```text
+GET http://127.0.0.1:8000/
+GET http://127.0.0.1:8000/docs
 GET http://127.0.0.1:8000/health
 ```
 
-## Run Infrastructure
+## Run with Docker
+
+Build and start the API, PostgreSQL, and Qdrant locally:
 
 ```powershell
-docker compose up -d
+docker compose up --build
+```
+
+The API container runs:
+
+```text
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+Check the API endpoints:
+
+```powershell
+curl http://127.0.0.1:8000/
+curl http://127.0.0.1:8000/health
+```
+
+Open the interactive API docs at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+PostgreSQL and Qdrant are included for end-to-end local development. The current test suite does
+not require either service to be available.
+
+To stop the stack:
+
+```powershell
+docker compose down
+```
+
+## Run Infrastructure Only
+
+```powershell
+docker compose up -d postgres qdrant
 ```
 
 ## Quality Checks

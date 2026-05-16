@@ -1,4 +1,28 @@
 services:
+  api:
+    build:
+      context: .
+    container_name: resume-agent-api
+    environment:
+      ENVIRONMENT: local
+      DATABASE_URL: postgresql+psycopg://resume_agent:resume_agent@postgres:5432/resume_agent
+      QDRANT_URL: http://qdrant:6333
+      LLM_PROVIDER: disabled
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   postgres:
     image: postgres:16-alpine
     container_name: resume-agent-postgres

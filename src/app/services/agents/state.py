@@ -34,6 +34,7 @@ class WorkflowState(BaseModel):
     report: ResumeVacancyReport | None = None
 
     completed_nodes: list[str] = Field(default_factory=list)
+    workflow_timings_ms: dict[str, float] = Field(default_factory=dict)
 
 
 AgentState = WorkflowState

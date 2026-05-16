@@ -74,6 +74,8 @@ def test_workflow_executes_successfully_in_deterministic_order() -> None:
     )
 
     assert state.completed_nodes == list(WORKFLOW_ORDER)
+    assert set(state.workflow_timings_ms) == set(WORKFLOW_ORDER)
+    assert all(duration >= 0 for duration in state.workflow_timings_ms.values())
     assert state.cleaned_resume_text.startswith("Skills")
     assert state.resume_profile is not None
     assert state.vacancy_requirements is not None
@@ -95,6 +97,8 @@ def test_workflow_runs_optional_bullet_rewriting_when_enabled() -> None:
     )
 
     assert state.bullet_rewrite_result is not None
+    assert "optional_bullet_rewriting" in state.workflow_timings_ms
+    assert state.workflow_timings_ms["optional_bullet_rewriting"] >= 0
     assert state.bullet_rewrite_result.provider == "static"
     assert state.report is not None
     assert state.report.improved_bullets == [
