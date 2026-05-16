@@ -1,0 +1,9 @@
+Skills
+Python, FastAPI, PostgreSQL, Docker, Pytest
+
+Experience
+6 years building backend REST APIs for reporting and workflow automation platforms.
+Designed PostgreSQL schemas, optimized query performance, and shipped Dockerized services.
+
+Projects
+Built a resume matching API with FastAPI, structured extraction, and automated test coverage.

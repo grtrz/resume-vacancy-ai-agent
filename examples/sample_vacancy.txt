@@ -1,0 +1,13 @@
+Backend Engineer
+
+Required skills
+Python, FastAPI, PostgreSQL, REST APIs
+
+Preferred skills
+Docker, Pytest, Kubernetes
+
+Experience
+At least 5 years building backend services for production systems.
+
+Responsibilities
+Design API endpoints, maintain database-backed services, improve reliability, and collaborate with product teams.
