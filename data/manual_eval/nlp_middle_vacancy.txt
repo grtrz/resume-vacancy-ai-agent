@@ -1,0 +1,12 @@
+Middle NLP Engineer
+
+Skills
+Python, NLP, LLM, RAG, embeddings, Hugging Face Transformers, sentence-transformers,
+Qdrant, FastAPI
+
+Experience
+At least 3 years building NLP or semantic search systems for production applications.
+
+Responsibilities
+Build retrieval pipelines, evaluate model quality, expose APIs for semantic matching,
+and collaborate with backend engineers on service reliability.

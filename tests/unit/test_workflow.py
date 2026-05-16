@@ -82,7 +82,10 @@ def test_workflow_executes_successfully_in_deterministic_order() -> None:
     assert state.semantic_similarity == 88.0
     assert state.missing_skills == ["postgresql"]
     assert len(state.retrieved_examples) == 1
-    assert len(state.recommendations) == 1
+    assert {recommendation.category for recommendation in state.recommendations} == {
+        "missing_skill_gap",
+        "strengthen_existing_experience",
+    }
     assert state.report is not None
     assert state.report.retrieved_examples == state.retrieved_examples
     assert state.report.recommendations == state.recommendations

@@ -1,0 +1,14 @@
+NLP Engineer
+
+Skills
+Python, PyTorch, Hugging Face Transformers, sentence-transformers, NLP, LLM, RAG,
+embeddings, Qdrant, FastAPI, PostgreSQL, Docker, Pytest
+
+Experience
+4 years building production NLP services for document search, classification, and
+semantic retrieval. Implemented embedding pipelines, vector search indexes, REST APIs,
+and offline quality evaluation for resume and vacancy matching workflows.
+
+Projects
+Built a retrieval-augmented matching service using FastAPI, Qdrant, transformer models,
+and deterministic evaluation datasets.

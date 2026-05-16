@@ -142,6 +142,7 @@ class WorkflowNodes:
         workflow_state.recommendations = build_recommendations(
             workflow_state.missing_skills,
             workflow_state.retrieved_examples,
+            matched_skills=workflow_state.matched_skills,
         )
         workflow_state.report = _build_report(workflow_state)
         return _complete(workflow_state, "recommendation_generation")
@@ -229,7 +230,9 @@ def _vacancy_keyword_terms(requirements: VacancyRequirements) -> Iterable[str]:
 
 def _build_report(state: WorkflowState) -> ResumeVacancyReport:
     recommendations_by_skill = {
-        recommendation.skill: recommendation.suggestion for recommendation in state.recommendations
+        recommendation.skill: recommendation.suggestion
+        for recommendation in state.recommendations
+        if recommendation.category == "missing_skill_gap"
     }
     rewrite_suggestions = (
         state.bullet_rewrite_result.suggestions if state.bullet_rewrite_result else []

@@ -2,7 +2,11 @@ import json
 import re
 from pathlib import Path
 
-from app.services.generation.recommendation_engine import RecommendationEngine
+from app.schemas.report import RetrievedExample
+from app.services.generation.recommendation_engine import (
+    RecommendationEngine,
+    build_recommendations,
+)
 from app.services.rag.embeddings import EmbeddingService
 from app.services.rag.knowledge_base import KnowledgeBase
 from app.services.rag.retriever import ResumeExampleRetriever
@@ -73,8 +77,76 @@ def test_recommendation_engine_grounds_suggestions_in_retrieved_examples(tmp_pat
     assert retrieved_examples[0].skill == "postgresql"
     assert len(recommendations) == 1
     assert recommendations[0].skill == "postgresql"
+    assert recommendations[0].category == "missing_skill_gap"
     assert "missing skill 'postgresql'" in recommendations[0].suggestion
     assert recommendations[0].example_bullet == retrieved_examples[0].example_bullet
+
+
+def test_recommendation_engine_adds_strengthening_suggestions_with_missing_skills(
+    tmp_path: Path,
+) -> None:
+    retriever = ResumeExampleRetriever(
+        knowledge_base=KnowledgeBase(_write_knowledge_base(tmp_path)),
+        embedding_service=EmbeddingService(model=FakeEmbeddingModel()),
+    )
+    engine = RecommendationEngine(retriever)
+
+    recommendations, _ = engine.recommend(
+        resume_text="Built Python FastAPI backend APIs.",
+        vacancy_text="Need Python and PostgreSQL database work for backend services.",
+        missing_skills=["postgresql"],
+        matched_skills=["python"],
+        limit=3,
+    )
+
+    by_category = {recommendation.category: recommendation for recommendation in recommendations}
+    assert "missing_skill_gap" in by_category
+    assert "strengthen_existing_experience" in by_category
+    assert by_category["missing_skill_gap"].skill == "postgresql"
+    assert by_category["strengthen_existing_experience"].skill == "python"
+
+
+def test_recommendation_engine_strengthens_matches_when_no_skills_are_missing(
+    tmp_path: Path,
+) -> None:
+    retriever = ResumeExampleRetriever(
+        knowledge_base=KnowledgeBase(_write_knowledge_base(tmp_path)),
+        embedding_service=EmbeddingService(model=FakeEmbeddingModel()),
+    )
+    engine = RecommendationEngine(retriever)
+
+    recommendations, retrieved_examples = engine.recommend(
+        resume_text="Built PostgreSQL database services.",
+        vacancy_text="Need PostgreSQL database optimization.",
+        missing_skills=[],
+        matched_skills=["postgresql"],
+        limit=2,
+    )
+
+    assert retrieved_examples
+    assert recommendations
+    assert recommendations[0].skill == "postgresql"
+    assert recommendations[0].category == "strengthen_existing_experience"
+    assert "measurable" in recommendations[0].suggestion
+
+
+def test_recommendations_do_not_include_hallucinated_skills() -> None:
+    retrieved_examples = [
+        RetrievedExample(
+            skill="react",
+            category="frontend",
+            example_bullet="Built React UI components for data entry workflows.",
+            relevance_score=100.0,
+        )
+    ]
+
+    result = build_recommendations(
+        missing_skills=["postgresql"],
+        retrieved_examples=retrieved_examples,
+        matched_skills=["python"],
+    )
+
+    assert {recommendation.skill for recommendation in result} <= {"postgresql", "python"}
 
 
 def _write_knowledge_base(tmp_path: Path) -> Path:

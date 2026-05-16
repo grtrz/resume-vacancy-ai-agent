@@ -1,0 +1,12 @@
+Backend ML Engineer
+
+Skills
+Python, FastAPI, PostgreSQL, Docker, Kubernetes, Airflow, Spark, data engineering,
+ML engineering, MLOps, CI/CD
+
+Experience
+At least 5 years building backend services, ML pipelines, and production automation.
+
+Responsibilities
+Design data pipelines, maintain model-serving APIs, improve observability, and support
+containerized deployments.

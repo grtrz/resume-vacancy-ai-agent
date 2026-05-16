@@ -183,6 +183,27 @@ per-case results, and reports:
 - `matched_skill_precision`
 - `average_match_score`
 
+## Manual Evaluation
+
+Manual examples for real-world style NLP and backend ML roles live in
+[data/manual_eval](data/manual_eval). Run the included resume against both sample vacancies:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\run_manual_eval.py
+```
+
+Run a specific resume against one or more vacancies:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\run_manual_eval.py `
+  data\manual_eval\nlp_middle_resume.txt `
+  data\manual_eval\nlp_middle_vacancy.txt `
+  data\manual_eval\backend_ml_vacancy.txt
+```
+
+The script is deterministic and prints match score, matched skills, missing skills,
+gap recommendations, strengthening suggestions, and retrieved examples without calling external APIs.
+
 ## Testing and CI
 
 Run local checks:

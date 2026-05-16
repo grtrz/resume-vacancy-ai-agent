@@ -20,10 +20,12 @@ class StaticRecommendationEngine:
         resume_text: str,
         vacancy_text: str,
         missing_skills: list[str],
+        matched_skills: list[str] | None = None,
         limit: int = 5,
     ) -> tuple[list[RecommendationSuggestion], list[RetrievedExample]]:
         _ = resume_text
         _ = vacancy_text
+        _ = matched_skills
         _ = limit
         retrieved_examples = [
             RetrievedExample(

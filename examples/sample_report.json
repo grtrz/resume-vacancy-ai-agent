@@ -32,9 +32,15 @@
   "recommendations": [
     {
       "skill": "kubernetes",
-      "category": "deployment",
+      "category": "missing_skill_gap",
       "suggestion": "Address missing skill 'kubernetes' only if it reflects real experience. Use the retrieved deployment example as structure.",
       "example_bullet": "Deployed containerized services with Kubernetes rollout checks and service health monitoring."
+    },
+    {
+      "skill": "fastapi",
+      "category": "strengthen_existing_experience",
+      "suggestion": "Strengthen existing fastapi experience by making it measurable, specific to the vacancy, and grounded in work already present in the resume. Do not add tools, outcomes, or scope that are not supported by the original text.",
+      "example_bullet": "Use an existing resume bullet that already mentions fastapi; add concrete scope, scale, reliability, latency, quality, or business impact only when supported."
     }
   ],
   "retrieved_examples": [

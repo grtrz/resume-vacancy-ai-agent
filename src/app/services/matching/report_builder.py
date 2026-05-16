@@ -34,6 +34,7 @@ class RecommendationGenerator(Protocol):
         resume_text: str,
         vacancy_text: str,
         missing_skills: list[str],
+        matched_skills: list[str] | None = None,
         limit: int = 5,
     ) -> tuple[list[RecommendationSuggestion], list[RetrievedExample]]: ...
 
@@ -86,11 +87,13 @@ class MatchingReportBuilder:
             semantic_similarity,
         )
 
+        matched = matched_skills(resume_skills, vacancy_skills)
         missing = missing_skills(resume_skills, required_skills)
         recommendations, retrieved_examples = self._recommendation_engine.recommend(
             resume_text=resume_semantic_text,
             vacancy_text=vacancy_semantic_text,
             missing_skills=missing,
+            matched_skills=matched,
         )
 
         return ResumeVacancyReport(
@@ -104,7 +107,7 @@ class MatchingReportBuilder:
                 coverage_bonus=coverage_bonus,
                 semantic_similarity=semantic_similarity,
             ),
-            matched_skills=matched_skills(resume_skills, vacancy_skills),
+            matched_skills=matched,
             missing_skills=missing,
             gaps=_gap_items(missing, recommendations),
             recommendations=recommendations,
@@ -180,7 +183,9 @@ def _gap_items(
     recommendations: list[RecommendationSuggestion],
 ) -> list[GapItem]:
     recommendation_by_skill = {
-        recommendation.skill: recommendation.suggestion for recommendation in recommendations
+        recommendation.skill: recommendation.suggestion
+        for recommendation in recommendations
+        if recommendation.category == "missing_skill_gap"
     }
     return [
         GapItem(
