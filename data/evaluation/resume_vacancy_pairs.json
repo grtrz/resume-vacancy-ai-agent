@@ -1,0 +1,52 @@
+[
+  {
+    "id": "strong_match",
+    "description": "Senior backend resume closely matches required Python, FastAPI, PostgreSQL, REST API, and experience requirements.",
+    "resume_text": "Skills\nPython, FastAPI, PostgreSQL, Docker, Pytest\n\nExperience\n6 years building backend REST APIs, database-backed services, and automated test suites.",
+    "vacancy_text": "Skills\nPython, FastAPI, PostgreSQL\n\nExperience\nAt least 5 years building backend REST APIs and production services.",
+    "expected_min_score": 85.0,
+    "expected_max_score": 100.0,
+    "expected_missing_skills": [],
+    "expected_matched_skills": ["fastapi", "postgresql", "python", "rest api"]
+  },
+  {
+    "id": "weak_match",
+    "description": "Frontend-oriented resume has little overlap with a backend Python vacancy.",
+    "resume_text": "Skills\nHTML, CSS, React\n\nExperience\n1 year building static marketing pages and simple UI components.",
+    "vacancy_text": "Skills\nPython, FastAPI, PostgreSQL\n\nExperience\nAt least 5 years building backend APIs and database services.",
+    "expected_min_score": 0.0,
+    "expected_max_score": 35.0,
+    "expected_missing_skills": ["fastapi", "postgresql", "python"],
+    "expected_matched_skills": []
+  },
+  {
+    "id": "missing_skills",
+    "description": "Resume covers core Python API work but lacks several required platform skills.",
+    "resume_text": "Skills\nPython, FastAPI\n\nExperience\n4 years building backend APIs and service integrations.",
+    "vacancy_text": "Skills\nPython, FastAPI, Docker, Kubernetes, PostgreSQL\n\nExperience\nAt least 3 years building backend services.",
+    "expected_min_score": 45.0,
+    "expected_max_score": 75.0,
+    "expected_missing_skills": ["docker", "kubernetes", "postgresql"],
+    "expected_matched_skills": ["fastapi", "python"]
+  },
+  {
+    "id": "experience_mismatch",
+    "description": "Resume has the right skills but substantially less experience than the vacancy requires.",
+    "resume_text": "Skills\nPython, FastAPI, PostgreSQL\n\nExperience\n1 year building internal backend APIs.",
+    "vacancy_text": "Skills\nPython, FastAPI, PostgreSQL\n\nExperience\nAt least 6 years building production backend platforms.",
+    "expected_min_score": 60.0,
+    "expected_max_score": 85.0,
+    "expected_missing_skills": [],
+    "expected_matched_skills": ["fastapi", "postgresql", "python"]
+  },
+  {
+    "id": "semantic_low_exact_overlap",
+    "description": "Resume and vacancy describe similar backend automation work with limited explicit skill keyword overlap.",
+    "resume_text": "Experience\n5 years designing event-driven Python services, asynchronous workers, data validation, and reliable service integrations for operational platforms.",
+    "vacancy_text": "Responsibilities\nBuild backend automation systems, integrate distributed services, validate business data, and maintain reliable production workflows.\n\nExperience\nAt least 4 years building backend systems.",
+    "expected_min_score": 25.0,
+    "expected_max_score": 65.0,
+    "expected_missing_skills": [],
+    "expected_matched_skills": []
+  }
+]

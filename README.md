@@ -162,6 +162,27 @@ See [examples/sample_report.json](examples/sample_report.json).
 }
 ```
 
+## Evaluation
+
+The repository includes a small synthetic evaluation set at
+[data/evaluation/resume_vacancy_pairs.json](data/evaluation/resume_vacancy_pairs.json). It covers
+strong matches, weak matches, missing skills, experience mismatch, and semantic matches with low
+exact skill overlap.
+
+Run the offline evaluator:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\evaluate_matching.py
+```
+
+The script runs the existing extraction and matching path with deterministic local adapters, prints
+per-case results, and reports:
+
+- `score_in_expected_range_rate`
+- `missing_skill_recall`
+- `matched_skill_precision`
+- `average_match_score`
+
 ## Testing and CI
 
 Run local checks:
